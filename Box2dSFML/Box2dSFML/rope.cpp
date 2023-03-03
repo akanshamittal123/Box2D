@@ -1,65 +1,54 @@
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
-#include <iostream>
-#include <vector>
-using namespace std;
 
-int main()
-{
-    // Create the window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Rope");
-    window.setFramerateLimit(160);
-    // Create the Box2D world
-    b2Vec2 gravity(0.1f, 9.8f);
-    b2World world(gravity);
+class Ground {
+public:
+    Ground(b2World& world, float x, float y, float width, float height) {
+        b2BodyDef groundBodyDef;
+        groundBodyDef.position.Set(x, y);
+        body = world.CreateBody(&groundBodyDef);
 
-    // Create a ground body
-    b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(400.0f, 590.0f);
-    b2Body* groundBody = world.CreateBody(&groundBodyDef);
+        b2PolygonShape groundShape;
+        groundShape.SetAsBox(width, height);
 
-    // Create a ground shape
-    b2PolygonShape groundShape;
-    groundShape.SetAsBox(400.0f, 10.0f);
+        b2FixtureDef groundFixtureDef;
+        groundFixtureDef.shape = &groundShape;
+        groundFixtureDef.density = 5.0f;
+        groundFixtureDef.friction = 10.0f;
+        body->CreateFixture(&groundFixtureDef);
+    }
 
-    // Create a ground fixture
-    b2FixtureDef groundFixtureDef;
-    groundFixtureDef.shape = &groundShape;
-    groundFixtureDef.density = 0.0f;
-    groundFixtureDef.friction = 1.0f;
-    groundBody->CreateFixture(&groundFixtureDef);
+    void draw(sf::RenderWindow& window) const {
+        sf::RectangleShape ground(sf::Vector2f(width * 2.0f, height * 2.0f));
+        ground.setFillColor(sf::Color::Color(101, 67, 33));
+        ground.setOrigin(width, height);
+        ground.setPosition(body->GetPosition().x, body->GetPosition().y);
+        window.draw(ground);
+    }
 
-    // Create a rope
-    const int NUM_LINKS = 10;
-    const float LINK_RADIUS = 10.0f;
-    const float LINK_DENSITY = 1.f;
-    const float LINK_FRICTION = 0.2f;
-    float ROPE_LENGTH = NUM_LINKS * (LINK_RADIUS * 2);
-    const float ROPE_START_X = 400.0f;
-    const float ROPE_START_Y = 50.0f;
+private:
+    b2Body* body;
+    float width = 400.0f;
+    float height = 10.0f;
+};
 
-    b2Body* prevBody = nullptr, * mainP = nullptr;
-    //vector<b2Body*>segments(10);
-    for (int i = 0; i < NUM_LINKS; i++) {
-        
-        // Create a body definition
+class Link {
+public:
+    Link(b2World& world, b2Body* prevBody, float x, float y, float radius, float density, float friction) {
         b2BodyDef bodyDef;
         bodyDef.type = b2_dynamicBody;
-        bodyDef.position.Set(ROPE_START_X, ROPE_START_Y + i * (2 * LINK_RADIUS));
+        bodyDef.position.Set(x, y);
 
-        b2Body* body = world.CreateBody(&bodyDef);
+        body = world.CreateBody(&bodyDef);
 
-        // Create a circle shape
         b2CircleShape shape;
-        shape.m_radius = LINK_RADIUS;
-        
-        // Create a fixture definition
+        shape.m_radius = radius;
+
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &shape;
-        fixtureDef.density = LINK_DENSITY;
-        fixtureDef.friction = LINK_FRICTION;
+        fixtureDef.density = density;
+        fixtureDef.friction = friction;
 
-        // Create a joint definition
         if (prevBody != nullptr) {
             b2DistanceJointDef jointDef;
             jointDef.Initialize(prevBody, body, prevBody->GetWorldCenter(), body->GetWorldCenter());
@@ -70,68 +59,77 @@ int main()
             world.CreateJoint(&jointDef);
         }
 
-        // Create the fixture and joint
         body->CreateFixture(&fixtureDef);
-
-        // Update the previous body
-        prevBody = body;
     }
 
-    // Create a circle to represent the end of the rope
-    sf::CircleShape end(LINK_RADIUS);
-    end.setFillColor(sf::Color::Color(245,245,220));
-    end.setOrigin(LINK_RADIUS, LINK_RADIUS);
+    void draw(sf::RenderWindow& window) const {
+        b2Vec2 pos = body->GetPosition();
+        sf::CircleShape link(radius);
+        link.setFillColor(sf::Color::Color(205, 133, 63));
+        link.setOrigin(radius, radius);
+        link.setPosition(pos.x, pos.y);
+        window.draw(link);
+    }
 
-    // Run the game loop
-    sf::Clock clock;
-    while (window.isOpen())
-    {
-        // Handle events
+    b2Body* getBody() const { return body; }
+
+private:
+    b2Body* body;
+    float radius = 10.0f;
+};
+
+class Rope {
+public:
+    Rope(b2World& world, int numLinks, float startX, float startY, float linkDensity, float linkFriction) {
+        const float linkRadius = 10.0f;
+        const float ropeLength = numLinks * (linkRadius * 2);
+        b2Body* prevBody = nullptr;
+
+        for (int i = 0; i < numLinks; i++) {
+            Link link(world, prevBody, startX, startY + i * (2 * linkRadius), linkRadius, linkDensity, linkFriction);
+            links.push_back(link);
+            prevBody = link.getBody();
+        }
+    }
+
+    void draw(sf::RenderWindow& window) const {
+        for (const auto& link : links) {
+            link.draw(window);
+        }
+    }
+
+    std::vector<Link>& getLinks() { return links; }
+
+private:
+    std::vector<Link> links;
+};
+
+int main() {
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Rope Simulator");
+   /* window.setFramerateLimit(120);*/
+
+        b2Vec2 gravity(0.1f, 9.81f);
+    b2World world(gravity);
+
+    Ground ground(world, 400.0f, 590.0f, 400.0f, 10.0f);
+
+    Rope rope(world, 10, 400.0f, 100.0f, 1.f, 1.2f);
+
+    while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-            {
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 window.close();
             }
         }
-        world.Step(1.0f / 60.f, 8, 3);
-        // Clear the window
-        window.clear(sf::Color::Color(173,216,250));
 
-        // Draw the ground
-        sf::RectangleShape ground(sf::Vector2f(800.0f, 20.0f));
-        ground.setFillColor(sf::Color::Color(101,67,33));
-        ground.setOrigin(400.0f, 10.0f);
-        ground.setPosition(groundBody->GetPosition().x, groundBody->GetPosition().y);
-        //ground.setRotation(groundBody->GetAngle() * 180.0f / b2_pi);
-        window.draw(ground);
+        world.Step(1.0f / 60.0f, 6, 2);
 
-        // Draw the rope
-        b2Body* body = prevBody;
-        //cout << mainP->GetNext()<< endl;
-        for (int i = 0; i < NUM_LINKS; i++) {
-            // Get the position of the link
-            b2Vec2 pos = body->GetPosition();
+        window.clear(sf::Color::White);
 
-            // Create a circle to represent the link
-            sf::CircleShape link(LINK_RADIUS);
-            link.setFillColor(sf::Color::Color(245, 245, 220));
-            link.setOrigin(LINK_RADIUS, LINK_RADIUS);
-            link.setPosition(pos.x, pos.y);
-            window.draw(link);
+        ground.draw(window);
+        rope.draw(window);
 
-            // Update the body
-            body = body->GetNext();
-        }
-
-
-        // Draw the end of the rope
-        b2Vec2 pos = prevBody->GetPosition();
-        end.setPosition(pos.x, pos.y);
-        window.draw(end);
-
-        // Display the window
         window.display();
     }
 
