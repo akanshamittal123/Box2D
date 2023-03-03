@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 using namespace std;
+
 int main()
 {
     // Create the window
@@ -29,7 +30,7 @@ int main()
     groundBody->CreateFixture(&groundFixtureDef);
 
     // Create a rope
-    const int NUM_LINKS = 20;
+    const int NUM_LINKS = 10;
     const float LINK_RADIUS = 10.0f;
     const float LINK_DENSITY = 1.f;
     const float LINK_FRICTION = 0.2f;
@@ -40,15 +41,18 @@ int main()
     b2Body* prevBody = nullptr, * mainP = nullptr;
     //vector<b2Body*>segments(10);
     for (int i = 0; i < NUM_LINKS; i++) {
+        
         // Create a body definition
         b2BodyDef bodyDef;
         bodyDef.type = b2_dynamicBody;
         bodyDef.position.Set(ROPE_START_X, ROPE_START_Y + i * (2 * LINK_RADIUS));
+
         b2Body* body = world.CreateBody(&bodyDef);
 
         // Create a circle shape
         b2CircleShape shape;
         shape.m_radius = LINK_RADIUS;
+        
         // Create a fixture definition
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &shape;
@@ -57,9 +61,15 @@ int main()
 
         // Create a joint definition
         if (prevBody != nullptr) {
+            /*b2RevoluteJointDef jointDef;
+            jointDef.localAnchorA.Set(0.0f, LINK_RADIUS);
+            jointDef.localAnchorB.Set(0.0f, -LINK_RADIUS);
+            jointDef.bodyA = prevBody;
+            jointDef.bodyB = body;
+            world.CreateJoint(&jointDef);*/
             b2DistanceJointDef jointDef;
             jointDef.Initialize(prevBody, body, prevBody->GetWorldCenter(), body->GetWorldCenter());
-            jointDef.length = ROPE_LENGTH;
+            jointDef.length = 100.f;
             jointDef.stiffness = 0.0f;
             jointDef.collideConnected = true;
             jointDef.damping = 0.5f;
@@ -77,7 +87,7 @@ int main()
 
     // Create a circle to represent the end of the rope
     sf::CircleShape end(LINK_RADIUS);
-    end.setFillColor(sf::Color::Red);
+    end.setFillColor(sf::Color::Color(245,245,220));
     end.setOrigin(LINK_RADIUS, LINK_RADIUS);
 
     // Run the game loop
@@ -93,13 +103,13 @@ int main()
                 window.close();
             }
         }
-        world.Step(1.0f / 60.0f, 8, 3);
+        world.Step(1.0f / 60.f, 8, 3);
         // Clear the window
-        window.clear(sf::Color::White);
+        window.clear(sf::Color::Color(173,216,250));
 
         // Draw the ground
         sf::RectangleShape ground(sf::Vector2f(800.0f, 20.0f));
-        ground.setFillColor(sf::Color::Green);
+        ground.setFillColor(sf::Color::Color(101,67,33));
         ground.setOrigin(400.0f, 10.0f);
         ground.setPosition(groundBody->GetPosition().x, groundBody->GetPosition().y);
         //ground.setRotation(groundBody->GetAngle() * 180.0f / b2_pi);
@@ -114,7 +124,7 @@ int main()
 
             // Create a circle to represent the link
             sf::CircleShape link(LINK_RADIUS);
-            link.setFillColor(sf::Color::Blue);
+            link.setFillColor(sf::Color::Color(245, 245, 220));
             link.setOrigin(LINK_RADIUS, LINK_RADIUS);
             link.setPosition(pos.x, pos.y);
             window.draw(link);
