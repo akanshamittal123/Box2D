@@ -61,20 +61,12 @@ int main()
 
         // Create a joint definition
         if (prevBody != nullptr) {
-            /*b2RevoluteJointDef jointDef;
-            jointDef.localAnchorA.Set(0.0f, LINK_RADIUS);
-            jointDef.localAnchorB.Set(0.0f, -LINK_RADIUS);
-            jointDef.bodyA = prevBody;
-            jointDef.bodyB = body;
-            world.CreateJoint(&jointDef);*/
             b2DistanceJointDef jointDef;
             jointDef.Initialize(prevBody, body, prevBody->GetWorldCenter(), body->GetWorldCenter());
             jointDef.length = 100.f;
             jointDef.stiffness = 0.0f;
             jointDef.collideConnected = true;
             jointDef.damping = 0.5f;
-            /*jointDef.frequencyHz = 2.0f;
-            jointDef.dampingRatio = 0.1f;*/
             world.CreateJoint(&jointDef);
         }
 
@@ -138,10 +130,6 @@ int main()
         b2Vec2 pos = prevBody->GetPosition();
         end.setPosition(pos.x, pos.y);
         window.draw(end);
-
-        // Update the Box2D world
-        /*float dt = clock.restart().asSeconds();
-        world.Step(dt, 6, 2);*/
 
         // Display the window
         window.display();
