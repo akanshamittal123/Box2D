@@ -1,2 +1,17 @@
-﻿  main.cpp
+﻿  BrickBreakerGame.cpp
+C:\Users\amittal\source\repos\Box2D\Box2D with SFML\Box2D with SFML\BrickBreakerGame.cpp(37,82): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+C:\Users\amittal\source\repos\Box2D\Box2D with SFML\Box2D with SFML\BrickBreakerGame.cpp(37,62): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+C:\Users\amittal\source\repos\Box2D\Box2D with SFML\Box2D with SFML\BrickBreakerGame.cpp(66,37): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
   Box2D with SFML.vcxproj -> C:\Users\amittal\source\repos\Box2D\Box2D with SFML\x64\Debug\Box2D with SFML.exe

@@ -133,16 +133,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="BoundaryWalls.cpp" />
+    <ClCompile Include="Brick.cpp" />
+    <ClCompile Include="BrickBreakerGame.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="Link.cpp" />
     <ClCompile Include="oldRope.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="Paddle.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Rope.cpp" />
+    <ClCompile Include="MyContactListener.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ball.h" />
+    <ClInclude Include="BoundaryWalls.h" />
+    <ClInclude Include="Brick.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="Link.h" />
+    <ClInclude Include="MyContactListener.h" />
+    <ClInclude Include="Paddle.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Rope.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
