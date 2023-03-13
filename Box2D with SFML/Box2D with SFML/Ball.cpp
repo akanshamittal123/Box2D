@@ -3,59 +3,74 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "Ball.h"
+#include "Brick.h"
 
 using namespace std;
 using namespace sf;
 
 
-Ball::Ball() {
-    fireTimer = 0;
-    if (ballTex.loadFromFile("star.png")) {
-        ball.setTexture(ballTex);
+Brick::Brick() {
+    if (brickTex.loadFromFile("brick.png")) {
+        brick.setTexture(brickTex);
+    }
+    brick.setScale(0.05f, 0.05f);
+    brickWidth = brick.getGlobalBounds().width;
+    brickHeight = brick.getGlobalBounds().height;
+    font.loadFromFile("yess.ttf");
+    brickText.setFont(font);
+    brickText.setCharacterSize(20);
+    brickText.setFillColor(Color::White);
+}
+
+void Brick::createBricks(float numBricks, b2World& world, RenderWindow& window) {
+    this->numBricks = numBricks;
+    for (int i = 0; i < numBricks; i++)
+    {
+        b2BodyDef brickDef;
+        brickDef.type = b2_dynamicBody;
+        brickDef.position.Set(rand() % (int)(window.getSize().x), rand() % (int)(window.getSize().y - 150.f));
+        b2Body* brickBody = world.CreateBody(&brickDef);
+        b2PolygonShape brickShape;
+        brickShape.SetAsBox(brickWidth / 2, brickHeight / 2);
+        b2FixtureDef brickFixtureDef;
+        brickFixtureDef.shape = &brickShape;
+        brickFixtureDef.restitution = 1.0f;
+        brickFixtureDef.friction = 0.0f;
+        brickBody->CreateFixture(&brickFixtureDef);
+        bricks.push_back({ brickBody, (rand() % 9) + 1 });
     }
 }
-void Ball::fire(float x, float y, b2World& world , RenderWindow&window, float &veloMag) {
-    if (fireTimer < 15) {
-        fireTimer++;
-    }
-    //Mouse::Button::ButtonCount = 5;
-   
-    
-    if (Mouse::isButtonPressed(Mouse::Left) && fireTimer >= 15) {
-        b2Vec2 mousePos(Mouse::getPosition(window).x, Mouse::getPosition(window).y);
-        b2Vec2 paddlePos(x, y);
-        b2Vec2 resultantVect = mousePos - paddlePos;
-        b2BodyDef ballDef;
-        ballDef.type = b2_dynamicBody;
-        ballDef.position.Set(x, y - 50.f);
-        b2Body* ballBody = world.CreateBody(&ballDef);
-        b2CircleShape ballShape;
-        ballShape.m_radius = 1.0f;
-        b2FixtureDef ballFixtureDef;
-        ballFixtureDef.density = 1.f;
-        ballFixtureDef.shape = &ballShape;
-        ballFixtureDef.restitution = 1.0f;
-        ballFixtureDef.friction = 0.0f;
-        ballBody->CreateFixture(&ballFixtureDef);
-        resultantVect.Normalize();
-        b2Vec2 velocity = 100.f * resultantVect;
-        ballBody->SetLinearVelocity(velocity);
-        balls.push_back(ballBody);
-        fireTimer = 0;
+
+void Brick::destroy(b2World& world, Player& player) {
+    int count = 0;
+    for (int i = 0; i < bricks.size(); i++) {
+        b2Vec2 velo = { 2.f, 0.f };
+        if (bricks[i].first->GetLinearVelocity() == velo) {
+            if (bricks[i].second > 1) {
+                bricks[i].second--;
+                bricks[i].first->SetLinearVelocity({ 0.f,0.f });
+            }
+            else {
+                player.increaseScore();
+                world.DestroyBody(bricks[i].first);
+                bricks.erase(bricks.begin() + i);
+                break;
+            }
+        }
     }
 }
-vector<b2Body*> Ball::getBalls() {
-    return balls;
+
+float Brick::getNumBricks() {
+    return numBricks;
 }
-void Ball::setBalls(vector<b2Body*>& tempBalls) {
-    balls = tempBalls;
-}
-void Ball::draw(RenderWindow& window) {
-    for (int i = 0; i < balls.size(); i++) {
-        ball.setScale(0.09f, 0.09f);
-        Vector2f ballPosition(balls[i]->GetPosition().x, balls[i]->GetPosition().y);
-        ball.setPosition(ballPosition);
-        window.draw(ball);
+
+void Brick::draw(RenderWindow& window) {
+    for (int i = 0; i < bricks.size(); i++) {
+
+        brickText.setString(to_string(bricks[i].second));
+        brick.setPosition(bricks[i].first->GetPosition().x, bricks[i].first->GetPosition().y);
+        brickText.setPosition(bricks[i].first->GetPosition().x + brickWidth/3, bricks[i].first->GetPosition().y + brickHeight/3);
+        window.draw(brick);
+        window.draw(brickText);
     }
 }
