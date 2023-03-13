@@ -8,7 +8,9 @@
 using namespace std;
 using namespace sf;
 
+//Paddle for releasing the balls
 
+//Constructor
 Paddle::Paddle(b2World& world) {
     if (paddleTex.loadFromFile("paddle.png")) {
         paddle.setTexture(paddleTex);
@@ -28,6 +30,7 @@ Paddle::Paddle(b2World& world) {
     paddleBody->CreateFixture(&paddleFixtureDef);
 }
 
+//Left & Right movement 
 void Paddle::move(float x) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && paddleBody->GetPosition().x > paddleWidth / 2)
     {
@@ -45,12 +48,17 @@ void Paddle::move(float x) {
     }
 }
 
+//Getting the curr Position
 b2Vec2 Paddle::getPos() {
     return paddleBody->GetPosition();
 }
+
+//Getting the pointer of the body 
 b2Body* Paddle::getBody() {
     return paddleBody;
 }
+
+//Drawing
 void Paddle::draw(RenderWindow& window) {
     paddle.setPosition(paddleBody->GetPosition().x, paddleBody->GetPosition().y);
     
