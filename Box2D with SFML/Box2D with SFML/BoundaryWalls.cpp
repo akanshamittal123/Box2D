@@ -8,7 +8,9 @@
 using namespace std;
 using namespace sf;
 
+//boundary wall to prevent balls going out of the window
 
+//creating the boundaryWalls and pushing it in the vector
 void BoundaryWalls::createBoundaryWalls(b2World& world, float x, float y) {
     b2BodyDef boundaryDef;
     boundaryDef.type = b2_staticBody;
@@ -39,9 +41,13 @@ void BoundaryWalls::createBoundaryWalls(b2World& world, float x, float y) {
     boundaryFixtureDef.shape = &boundaryShape3;
     boundaryWalls[2]->CreateFixture(&boundaryFixtureDef);
 }
+
+//getting the Walls
 vector<b2Body*>  BoundaryWalls::getWalls() {
     return boundaryWalls;
 }
+
+//Drawing
 void BoundaryWalls::draw(RenderWindow& window) {
     for (int i = 0; i < boundaryWalls.size(); i++) {
         RectangleShape boundaryWallSFML;
