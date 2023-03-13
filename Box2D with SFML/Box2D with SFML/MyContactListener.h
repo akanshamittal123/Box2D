@@ -1,3 +1,6 @@
+#ifndef MYCONTACTLISTENER_H
+#define MYCONTACTLISTENER_H
+
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include <iostream>
@@ -19,3 +22,5 @@ public:
     // handles different conditions of collision
     void BeginContact(b2Contact* contact)override;
 };
+
+#endif
