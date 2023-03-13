@@ -1,3 +1,6 @@
+#ifndef BRICK_H
+#define BRICK_H
+
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include <iostream>
@@ -32,3 +35,5 @@ public:
     //Drawing
     void draw(RenderWindow& window);
 };
+
+#endif
