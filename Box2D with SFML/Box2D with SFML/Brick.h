@@ -14,9 +14,11 @@ class Brick {
     int numBricks;
     float brickWidth;
     float brickHeight;
-    vector<b2Body*>bricks;
+    vector<pair<b2Body*, int>> bricks;
     Sprite brick;
     Texture brickTex;
+    Font font;
+    Text brickText;
 
 public:
     //Constructor
