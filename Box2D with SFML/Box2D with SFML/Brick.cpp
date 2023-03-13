@@ -8,7 +8,9 @@
 using namespace std;
 using namespace sf;
 
+//Bricks that is meant to be destroyed
 
+//Constructor
 Brick::Brick() {
     if (brickTex.loadFromFile("brick.png")) {
         brick.setTexture(brickTex);
@@ -22,6 +24,7 @@ Brick::Brick() {
     brickText.setFillColor(Color::White);
 }
 
+//creating the bricks
 void Brick::createBricks(float numBricks, b2World& world, RenderWindow& window) {
     this->numBricks = numBricks;
     for (int i = 0; i < numBricks; i++)
@@ -41,6 +44,7 @@ void Brick::createBricks(float numBricks, b2World& world, RenderWindow& window) 
     }
 }
 
+//destroying the bricks after getting hit by the balls
 void Brick::destroy(b2World& world, Player& player) {
     int count = 0;
     for (int i = 0; i < bricks.size(); i++) {
@@ -60,10 +64,12 @@ void Brick::destroy(b2World& world, Player& player) {
     }
 }
 
+//getting Bricks
 float Brick::getNumBricks() {
     return numBricks;
 }
 
+//Drawing
 void Brick::draw(RenderWindow& window) {
     for (int i = 0; i < bricks.size(); i++) {
 
