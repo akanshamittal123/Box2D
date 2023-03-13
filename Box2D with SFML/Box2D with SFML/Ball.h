@@ -1,3 +1,6 @@
+#ifndef BALL_H
+#define BALL_H
+
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include <iostream>
@@ -28,3 +31,5 @@ public:
     //drawing the balls
     void draw(RenderWindow& window);
 };
+
+#endif
